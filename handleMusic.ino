@@ -33,10 +33,10 @@ void handleMusic() {
     }
   }
   handPresented = bitRead(motionState, HAND_PRESENTED); // Remember the state.
-  if (proximityDetected == false &&
-      musicPlaying == true) {
-    myDFPlayer.pause();
-    musicPlaying = false;
-    Serial.println("No proximity - pausing the music.");
-  }
+//  if (proximityDetected == false &&
+//      musicPlaying == true) {
+//    myDFPlayer.pause();
+//    musicPlaying = false;
+//    Serial.println("No proximity - pausing the music.");
+//  }
 }
