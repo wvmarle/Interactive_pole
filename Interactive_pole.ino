@@ -3,6 +3,8 @@
 #include "DFRobotDFPlayerMini.h"
 #include <FastLED.h>
 
+#define TEST_PROX_SENSOR
+
 const uint8_t LED_PIN = 5;
 const uint8_t PROXIMITY_SENSOR_PIN = A1;
 const uint8_t BRIGHTNESS_SENSOR_PIN = A0;

@@ -113,6 +113,7 @@ void menuMain(char c) {
       Serial.println();
       Serial.println(F("1    Set up colours."));
       Serial.println(F("2    Set music volume."));
+      Serial.println(F("3    Check brightness level."));
       Serial.println();
       Serial.println(F("Key in the desired option number."));
       mainMenuState = MAINMENU_WAITING;
@@ -132,6 +133,13 @@ void menuMain(char c) {
           menuState = MENU_SETMUSIC;
           mainMenuState = MAINMENU_SHOW;
           musicMenuState = MUSICMENU_SHOW_VOLUME;
+          delay(10);                                        // Allow for stray characters to enter the Serial buffer.
+          clearBuffer();
+          break;
+
+        case '3':
+          Serial.print(F("Current brightness level: "));
+          Serial.println(analogRead(BRIGHTNESS_SENSOR_PIN));
           delay(10);                                        // Allow for stray characters to enter the Serial buffer.
           clearBuffer();
           break;

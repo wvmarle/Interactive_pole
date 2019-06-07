@@ -5,6 +5,7 @@ void initHandSensor() {
   handSensor.init();                                        // Initialise the sensor.
   handSensor.setTimeout(0);                                 // Sets a timeout period in milliseconds after which read operations will abort if the sensor is not ready. A value of 0 disables the timeout.
   handSensor.startContinuous();                             // Take measurements continuously, as fast as possible.
+  pinMode(2, INPUT_PULLUP);                                 // Make sure we don't leave it floating.
   attachInterrupt(digitalPinToInterrupt(2), sensorInterrupt, FALLING); // When measurement is done, an interrupt is fired (active low).
 }
 
@@ -14,16 +15,10 @@ void sensorInterrupt() {
 }
 
 void handleHandSensor() {
-  static uint32_t latestReading;
   if (haveReading) {                                        // We got an interrupt, a new reading is complete.
     haveReading = false;
     getReading();                                           // Read the sensor's result. This resets the interrupt state.
     analyseMotion(motionState);
-    latestReading = millis();                               // Record when we had the reading - indicating the sensor is alive and well.
-  }
-  if (millis() - latestReading > 1000) {                    // If one second no readings sensor is probably not connected: 
-    initHandSensor();                                       // Try to restart the sensor, maybe it's been (re)connected already.
-    latestReading = millis();                               // Keep track of when this happened, so a second later we try again.
   }
 }
 

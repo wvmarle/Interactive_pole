@@ -1,5 +1,5 @@
 #include <FastLED.h>
-const uint8_t NUM_LEDS = 114;                               // The total number of LEDs in the strip (or a little less than this, as they're all the same colour anyway).
+const uint8_t NUM_LEDS = 120;                               // The total number of LEDs in the strip (or a little less than this, as they're all the same colour anyway).
 CRGB leds[NUM_LEDS];                                        // Define the array of leds
 uint8_t red, green, blue;                                   // The current colours.
 
@@ -58,7 +58,7 @@ void handleLEDs() {
     fadeStep = 0;
     fadeSpeed = transitionSpeed;                            // How long the transition should take.
   }
-                                                            
+
   nSteps = min(fadeSpeed / 50, 255);                        // Don't fade too fast, but also no more than 256 total steps. It takes about 32 ms to transmit data to 100 LEDs!
   if (millis() - lastFadeTime > (float)fadeStep * (float)fadeSpeed / (float)nSteps) {
     fadeStep++;
@@ -130,5 +130,21 @@ void setLEDs(uint8_t fromRed, uint8_t toRed,
   green = (float)fromGreen + ((float)toGreen - (float)fromGreen) * (float)fadeStep / (float)nSteps;
   blue = (float)fromBlue + ((float)toBlue - (float)fromBlue) * (float)fadeStep / (float)nSteps;
   CRGB rgb = CRGB(red, green, blue);
+#ifdef TEST_PROX_SENSOR
+  for (uint8_t i = 0; i < NUM_LEDS - 10; i++) {
+    leds[i] = rgb;
+  }
+  if (digitalRead(PROXIMITY_SENSOR_PIN)) {
+    rgb = CRGB(255, 0, 0);
+  }
+  else {
+    rgb = CRGB(0, 255, 0);
+  }
+  for (uint8_t i = NUM_LEDS - 10; i < NUM_LEDS; i++) {
+    leds[i] = rgb;
+  }
+  FastLED.show();
+#else
   FastLED.showColor(rgb);
+#endif
 }

@@ -1,8 +1,8 @@
-const uint8_t MINIMUM_BRIGHTNESS = 35 ;                      // Minimum LED brightness. Absolute minimum 25 to keep the power banks on (>65 mA current).
-const uint8_t MAXIMUM_BRIGHTNESS = 255;                     // Maximum LED brightness.
+const uint8_t MINIMUM_BRIGHTNESS = 35;                      // Minimum LED brightness. Absolute minimum 25 to keep the power banks on (>65 mA current).
+const uint8_t MAXIMUM_BRIGHTNESS = 220;                     // Maximum LED brightness (100% = 255; have to limit this a bit due to available current).
 
 const uint16_t MINIMUM_READING = 10;                        // Brightness level where LED brightness should reach minimum.
-const uint16_t MAXIMUM_READING = 800;                       // Brightness level where LED brightness should reach maximum.
+const uint16_t MAXIMUM_READING = 400;                       // Brightness level where LED brightness should reach maximum.
 
 const uint16_t READING_FREQUENCY = 100;                     // Time in milliseconds between brightness readings.
 const uint16_t READINGS = 64;                               // Number of readings over which to average.
