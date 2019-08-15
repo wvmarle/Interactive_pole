@@ -14,37 +14,15 @@ enum mainMenuStates {
 uint8_t mainMenuState;
 
 enum ColourMenuStates {
-  COLOURMENU_SHOW_IDLE_FADE_SPEED,
-  COLOURMENU_ENTER_IDLE_FADE_SPEED,
-  COLOURMENU_CONFIRM_IDLE_FADE_SPEED,
-
-  COLOURMENU_SHOW_IDLE_RGB_1,
-  COLOURMENU_ENTER_IDLE_RED_1,
-  COLOURMENU_ENTER_IDLE_GREEN_1,
-  COLOURMENU_ENTER_IDLE_BLUE_1,
-  COLOURMENU_CONFIRM_IDLE_RGB_1,
-
-  COLOURMENU_SHOW_IDLE_RGB_2,
-  COLOURMENU_ENTER_IDLE_RED_2,
-  COLOURMENU_ENTER_IDLE_GREEN_2,
-  COLOURMENU_ENTER_IDLE_BLUE_2,
-  COLOURMENU_CONFIRM_IDLE_RGB_2,
-
   COLOURMENU_SHOW_ACTIVE_FADE_SPEED,
   COLOURMENU_ENTER_ACTIVE_FADE_SPEED,
   COLOURMENU_CONFIRM_ACTIVE_FADE_SPEED,
 
-  COLOURMENU_SHOW_ACTIVE_RGB_1,
-  COLOURMENU_ENTER_ACTIVE_RED_1,
-  COLOURMENU_ENTER_ACTIVE_GREEN_1,
-  COLOURMENU_ENTER_ACTIVE_BLUE_1,
-  COLOURMENU_CONFIRM_ACTIVE_RGB_1,
-
-  COLOURMENU_SHOW_ACTIVE_RGB_2,
-  COLOURMENU_ENTER_ACTIVE_RED_2,
-  COLOURMENU_ENTER_ACTIVE_GREEN_2,
-  COLOURMENU_ENTER_ACTIVE_BLUE_2,
-  COLOURMENU_CONFIRM_ACTIVE_RGB_2,
+  COLOURMENU_SHOW_MUSIC_RGB,
+  COLOURMENU_ENTER_MUSIC_RED,
+  COLOURMENU_ENTER_MUSIC_GREEN,
+  COLOURMENU_ENTER_MUSIC_BLUE,
+  COLOURMENU_CONFIRM_MUSIC_RGB,
 
   COLOURMENU_SHOW_TRANSITION_SPEED,
   COLOURMENU_ENTER_TRANSITION_SPEED,
@@ -91,20 +69,11 @@ void menuMain(char c) {
     case (MAINMENU_SHOW):
       Serial.println(F("Welcome to the interactive music pole."));
       Serial.println();
-      sprintf_P(buf, PSTR("Idle fading: %u milliseconds per cycle."), idleFadeSpeed);
-      Serial.println(buf);
-      sprintf_P(buf, PSTR("Idle colour 1 (r, g, b) = (%u, %u, %u)"), idleRed[0], idleGreen[0], idleBlue[0]);
-      Serial.println(buf);
-      sprintf_P(buf, PSTR("Idle colour 2 (r, g, b) = (%u, %u, %u)"), idleRed[1], idleGreen[1], idleBlue[1]);
-      Serial.println(buf);
-      Serial.println();
       sprintf_P(buf, PSTR("Transition fading: %u milliseconds to complete transition."), transitionSpeed);
       Serial.println(buf);
       sprintf_P(buf, PSTR("Active fading: %u milliseconds per cycle."), activeFadeSpeed);
       Serial.println(buf);
-      sprintf_P(buf, PSTR("Active colour 1 (r, g, b) = (%u, %u, %u)"), activeRed[0], activeGreen[0], activeBlue[0]);
-      Serial.println(buf);
-      sprintf_P(buf, PSTR("Active colour 2 (r, g, b) = (%u, %u, %u)"), activeRed[1], activeGreen[1], activeBlue[1]);
+      sprintf_P(buf, PSTR("Music colour (r, g, b) = (%u, %u, %u)"), musicRed, musicGreen, musicBlue);
       Serial.println(buf);
       Serial.println();
       sprintf_P(buf, PSTR("Music volume = %u"), musicVolume);
@@ -124,7 +93,7 @@ void menuMain(char c) {
         case '1':
           menuState = MENU_SETCOLOURS;
           mainMenuState = MAINMENU_SHOW;
-          colourMenuState = COLOURMENU_SHOW_IDLE_FADE_SPEED;
+          colourMenuState = COLOURMENU_SHOW_ACTIVE_FADE_SPEED;
           delay(10);                                        // Allow for stray characters to enter the Serial buffer.
           clearBuffer();
           break;
@@ -173,209 +142,6 @@ void menuSetColours(char c) {                               // Handle input of c
   }
 
   switch (colourMenuState) {
-
-    /*********************************************************************************************************
-       Idle fading speed and steps.
-    */
-    case COLOURMENU_SHOW_IDLE_FADE_SPEED:
-      Serial.println();
-      sprintf_P(buf, PSTR("Enter the idle fade speed in milliseconds per cycle (%u): "), idleFadeSpeed);
-      Serial.println(buf);
-      colourMenuState = COLOURMENU_ENTER_IDLE_FADE_SPEED;
-      break;
-
-    case COLOURMENU_ENTER_IDLE_FADE_SPEED:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          entry = atoi(input);
-          nCharacters = 0;
-          Serial.println();
-          sprintf_P(buf, PSTR("New value for idle fade speed: %u ms per cycle."), entry);
-          Serial.println(buf);
-          strcpy_P(buf, confirm);
-          Serial.println(buf);
-          colourMenuState = COLOURMENU_CONFIRM_IDLE_FADE_SPEED;
-        }
-        else {                                                // No new value entered; continue to the next.
-          colourMenuState = COLOURMENU_SHOW_IDLE_RGB_1;
-        }
-      }
-      break;
-
-    case COLOURMENU_CONFIRM_IDLE_FADE_SPEED:
-      if (c == 'y' || c == 'Y') {
-        idleFadeSpeed = entry;
-        colourMenuState = COLOURMENU_SHOW_IDLE_RGB_1;
-      }
-      else if (c != 0) {
-        colourMenuState = COLOURMENU_SHOW_IDLE_FADE_SPEED;
-      }
-      break;
-
-    /*********************************************************************************************************
-       Idle fading colour 1
-    */
-    case COLOURMENU_SHOW_IDLE_RGB_1:
-      Serial.println();
-      sprintf_P(buf, PSTR("Current idle base colour 1 (r, g, b) = (%u, %u, %u)."), idleRed[0], idleGreen[0], idleBlue[0]);
-      Serial.println(buf);
-      sprintf_P(buf, PSTR("Enter new red 1 value (%u): "), idleRed[0]);
-      Serial.println(buf);
-      colourMenuState = COLOURMENU_ENTER_IDLE_RED_1;
-      rgbEntry[0] = idleRed[0];
-      rgbEntry[1] = idleGreen[0];
-      rgbEntry[2] = idleBlue[0];
-      entryChanged = false;
-      break;
-
-    case COLOURMENU_ENTER_IDLE_RED_1:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[0] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        sprintf_P(buf, PSTR("Enter new green 1 value (%u): "), idleGreen[0]);
-        Serial.println(buf);
-        colourMenuState = COLOURMENU_ENTER_IDLE_GREEN_1;
-      }
-      break;
-
-    case COLOURMENU_ENTER_IDLE_GREEN_1:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[1] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        sprintf_P(buf, PSTR("Enter new value 1 value (%u): "), idleBlue[0]);
-        Serial.println(buf);
-        colourMenuState = COLOURMENU_ENTER_IDLE_BLUE_1;
-      }
-      break;
-
-    case COLOURMENU_ENTER_IDLE_BLUE_1:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[2] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        if (entryChanged) {
-          Serial.println();
-          sprintf_P(buf, PSTR("New idle base colour 1 (r, g, b) = (%u, %u, %u)."), rgbEntry[0], rgbEntry[1], rgbEntry[2]);
-          Serial.println(buf);
-          strcpy_P(buf, confirm);
-          Serial.println(buf);
-          colourMenuState = COLOURMENU_CONFIRM_IDLE_RGB_1;
-        }
-        else {
-          colourMenuState = COLOURMENU_SHOW_IDLE_RGB_2;
-        }
-      }
-      break;
-
-    case COLOURMENU_CONFIRM_IDLE_RGB_1:
-      if (c == 'y' || c == 'Y') {
-        idleRed[0] = rgbEntry[0];
-        idleGreen[0] = rgbEntry[1];
-        idleBlue[0] = rgbEntry[2];
-        colourMenuState = COLOURMENU_SHOW_IDLE_RGB_2;
-      }
-      else if (c != 0) {
-        colourMenuState = COLOURMENU_SHOW_IDLE_RGB_1;
-      }
-      break;
-
-    /*********************************************************************************************************
-       Idle fading colour 2.
-    */
-
-    case COLOURMENU_SHOW_IDLE_RGB_2:
-      Serial.println();
-      sprintf_P(buf, PSTR("Current idle base colour 2 (r, g, b) = (%u, %u, %u)."), idleRed[1], idleGreen[1], idleBlue[1]);
-      Serial.println(buf);
-      sprintf_P(buf, PSTR("Enter new red 2 value (%u): "), idleRed[1]);
-      Serial.println(buf);
-      colourMenuState = COLOURMENU_ENTER_IDLE_RED_2;
-      rgbEntry[0] = idleRed[1];
-      rgbEntry[1] = idleGreen[1];
-      rgbEntry[2] = idleBlue[1];
-      entryChanged = false;
-      break;
-
-    case COLOURMENU_ENTER_IDLE_RED_2:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[0] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        sprintf_P(buf, PSTR("Enter new green 2 value (%u): "), idleGreen[1]);
-        Serial.println(buf);
-        colourMenuState = COLOURMENU_ENTER_IDLE_GREEN_2;
-      }
-      break;
-
-    case COLOURMENU_ENTER_IDLE_GREEN_2:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[1] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        sprintf_P(buf, PSTR("Enter new value 2 value (%u): "), idleBlue[1]);
-        Serial.println(buf);
-        colourMenuState = COLOURMENU_ENTER_IDLE_BLUE_2;
-      }
-      break;
-
-    case COLOURMENU_ENTER_IDLE_BLUE_2:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[2] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        if (entryChanged) {
-          Serial.println();
-          sprintf_P(buf, PSTR("New idle base colour 2 (r, g, b) = (%u, %u, %u)."), rgbEntry[0], rgbEntry[1], rgbEntry[2]);
-          Serial.println(buf);
-          strcpy_P(buf, confirm);
-          Serial.println(buf);
-          colourMenuState = COLOURMENU_CONFIRM_IDLE_RGB_2;
-        }
-        else {
-          colourMenuState = COLOURMENU_SHOW_ACTIVE_FADE_SPEED;
-        }
-      }
-      break;
-
-    case COLOURMENU_CONFIRM_IDLE_RGB_2:
-      if (c == 'y' || c == 'Y') {
-        idleRed[1] = rgbEntry[0];
-        idleGreen[1] = rgbEntry[1];
-        idleBlue[1] = rgbEntry[2];
-        colourMenuState = COLOURMENU_SHOW_ACTIVE_FADE_SPEED;
-      }
-      else if (c != 0) {
-        colourMenuState = COLOURMENU_SHOW_IDLE_RGB_2;
-      }
-      break;
-
     /*********************************************************************************************************
        Active fading speed and steps.
     */
@@ -400,7 +166,7 @@ void menuSetColours(char c) {                               // Handle input of c
           colourMenuState = COLOURMENU_CONFIRM_ACTIVE_FADE_SPEED;
         }
         else {                                                // No new value entered; continue to the next.
-          colourMenuState = COLOURMENU_SHOW_ACTIVE_RGB_1;
+          colourMenuState = COLOURMENU_SHOW_TRANSITION_SPEED;
         }
       }
       break;
@@ -408,175 +174,12 @@ void menuSetColours(char c) {                               // Handle input of c
     case COLOURMENU_CONFIRM_ACTIVE_FADE_SPEED:
       if (c == 'y' || c == 'Y') {
         activeFadeSpeed = entry;
-        colourMenuState = COLOURMENU_SHOW_ACTIVE_RGB_1;
+        colourMenuState = COLOURMENU_SHOW_TRANSITION_SPEED;
       }
       else if (c != 0) {
         colourMenuState = COLOURMENU_SHOW_ACTIVE_FADE_SPEED;
       }
       break;
-
-    /*********************************************************************************************************
-       Active colour 1.
-    */
-    case COLOURMENU_SHOW_ACTIVE_RGB_1:
-      Serial.println();
-      sprintf_P(buf, PSTR("Current active base colour 1 (r, g, b) = (%u, %u, %u)."), activeRed[0], activeGreen[0], activeBlue[0]);
-      Serial.println(buf);
-      sprintf_P(buf, PSTR("Enter new red value (%u): "), activeRed[0]);
-      Serial.println(buf);
-      colourMenuState = COLOURMENU_ENTER_ACTIVE_RED_1;
-      rgbEntry[0] = activeRed[0];
-      rgbEntry[1] = activeGreen[0];
-      rgbEntry[2] = activeBlue[0];
-      entryChanged = false;
-      break;
-
-    case COLOURMENU_ENTER_ACTIVE_RED_1:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[0] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        sprintf_P(buf, PSTR("Enter new green value (%u): "), activeGreen[0]);
-        Serial.println(buf);
-        colourMenuState = COLOURMENU_ENTER_ACTIVE_GREEN_1;
-      }
-      break;
-
-    case COLOURMENU_ENTER_ACTIVE_GREEN_1:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[1] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        sprintf_P(buf, PSTR("Enter new value value (%u): "), activeBlue[0]);
-        Serial.println(buf);
-        colourMenuState = COLOURMENU_ENTER_ACTIVE_BLUE_1;
-      }
-      break;
-
-    case COLOURMENU_ENTER_ACTIVE_BLUE_1:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[2] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        if (entryChanged) {
-          Serial.println();
-          sprintf_P(buf, PSTR("New active base colour 1 (r, g, b) = (%u, %u, %u)."), rgbEntry[0], rgbEntry[1], rgbEntry[2]);
-          Serial.println(buf);
-          strcpy_P(buf, confirm);
-          Serial.println(buf);
-          colourMenuState = COLOURMENU_CONFIRM_ACTIVE_RGB_1;
-        }
-        else {
-          colourMenuState = COLOURMENU_SHOW_ACTIVE_RGB_2;
-        }
-      }
-      break;
-
-    case COLOURMENU_CONFIRM_ACTIVE_RGB_1:
-      if (c == 'y' || c == 'Y') {
-        activeRed[0] = rgbEntry[0];
-        activeGreen[0] = rgbEntry[1];
-        activeBlue[0] = rgbEntry[2];
-        colourMenuState = COLOURMENU_SHOW_ACTIVE_RGB_2;
-      }
-      else if (c != 0) {
-        colourMenuState = COLOURMENU_SHOW_ACTIVE_RGB_1;
-      }
-      break;
-
-    /*********************************************************************************************************
-       Active colour 2.
-    */
-    case COLOURMENU_SHOW_ACTIVE_RGB_2:
-      Serial.println();
-      sprintf_P(buf, PSTR("Current active base colour 2 (r, g, b) = (%u, %u, %u)."), activeRed[1], activeGreen[1], activeBlue[1]);
-      Serial.println(buf);
-      sprintf_P(buf, PSTR("Enter new red 2 value (%u): "), activeRed[1]);
-      Serial.println(buf);
-      colourMenuState = COLOURMENU_ENTER_ACTIVE_RED_2;
-      rgbEntry[0] = activeRed[1];
-      rgbEntry[1] = activeGreen[1];
-      rgbEntry[2] = activeBlue[1];
-      entryChanged = false;
-      break;
-
-    case COLOURMENU_ENTER_ACTIVE_RED_2:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[0] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        sprintf_P(buf, PSTR("Enter new green 2 value (%u): "), activeGreen[1]);
-        Serial.println(buf);
-        colourMenuState = COLOURMENU_ENTER_ACTIVE_GREEN_2;
-      }
-      break;
-
-    case COLOURMENU_ENTER_ACTIVE_GREEN_2:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[1] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        sprintf_P(buf, PSTR("Enter new value 2 value (%u): "), activeBlue[1]);
-        Serial.println(buf);
-        colourMenuState = COLOURMENU_ENTER_ACTIVE_BLUE_2;
-      }
-      break;
-
-    case COLOURMENU_ENTER_ACTIVE_BLUE_2:
-      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
-        if (nCharacters > 0) {
-          input[nCharacters] = 0;
-          rgbEntry[2] = atoi(input);
-          nCharacters = 0;
-          entryChanged = true;
-          Serial.println();
-        }
-        if (entryChanged) {
-          Serial.println();
-          sprintf_P(buf, PSTR("New active base colour 2 (r, g, b) = (%u, %u, %u)."), rgbEntry[0], rgbEntry[1], rgbEntry[2]);
-          Serial.println(buf);
-          strcpy_P(buf, confirm);
-          Serial.println(buf);
-          colourMenuState = COLOURMENU_CONFIRM_ACTIVE_RGB_2;
-        }
-        else {
-          colourMenuState = COLOURMENU_SHOW_TRANSITION_SPEED;
-        }
-      }
-      break;
-
-    case COLOURMENU_CONFIRM_ACTIVE_RGB_2:
-      if (c == 'y' || c == 'Y') {
-        activeRed[1] = rgbEntry[0];
-        activeGreen[1] = rgbEntry[1];
-        activeBlue[1] = rgbEntry[2];
-        colourMenuState = COLOURMENU_SHOW_TRANSITION_SPEED;
-      }
-      else if (c != 0) {
-        colourMenuState = COLOURMENU_SHOW_ACTIVE_RGB_2;
-      }
-      break;
-
 
     /*********************************************************************************************************
        Transition speed and steps.
@@ -611,12 +214,95 @@ void menuSetColours(char c) {                               // Handle input of c
     case COLOURMENU_CONFIRM_TRANSITION_SPEED:
       if (c == 'y' || c == 'Y') {
         transitionSpeed = entry;
-        colourMenuState = COLOURMENU_COMPLETE;
+        colourMenuState = COLOURMENU_SHOW_MUSIC_RGB;
       }
       else if (c != 0) {
         colourMenuState = COLOURMENU_SHOW_TRANSITION_SPEED;
       }
       break;
+
+
+    /*********************************************************************************************************
+       Active colour 1.
+    */
+    case COLOURMENU_SHOW_MUSIC_RGB:
+      Serial.println();
+      sprintf_P(buf, PSTR("Current music playing colour 1 (r, g, b) = (%u, %u, %u)."), musicRed, musicGreen, musicBlue);
+      Serial.println(buf);
+      sprintf_P(buf, PSTR("Enter new red value (%u): "), musicRed);
+      Serial.println(buf);
+      colourMenuState = COLOURMENU_ENTER_MUSIC_RED;
+      rgbEntry[0] = musicRed;
+      rgbEntry[1] = musicGreen;
+      rgbEntry[2] = musicBlue;
+      entryChanged = false;
+      break;
+
+    case COLOURMENU_ENTER_MUSIC_RED:
+      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
+        if (nCharacters > 0) {
+          input[nCharacters] = 0;
+          rgbEntry[0] = atoi(input);
+          nCharacters = 0;
+          entryChanged = true;
+          Serial.println();
+        }
+        sprintf_P(buf, PSTR("Enter new green value (%u): "), musicGreen);
+        Serial.println(buf);
+        colourMenuState = COLOURMENU_ENTER_MUSIC_GREEN;
+      }
+      break;
+
+    case COLOURMENU_ENTER_MUSIC_GREEN:
+      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
+        if (nCharacters > 0) {
+          input[nCharacters] = 0;
+          rgbEntry[1] = atoi(input);
+          nCharacters = 0;
+          entryChanged = true;
+          Serial.println();
+        }
+        sprintf_P(buf, PSTR("Enter new blue value (%u): "), musicBlue);
+        Serial.println(buf);
+        colourMenuState = COLOURMENU_ENTER_MUSIC_BLUE;
+      }
+      break;
+
+    case COLOURMENU_ENTER_MUSIC_BLUE:
+      if (c == 13 || c == 10) {                                // CR or NL received. Handle input based on what it is.
+        if (nCharacters > 0) {
+          input[nCharacters] = 0;
+          rgbEntry[2] = atoi(input);
+          nCharacters = 0;
+          entryChanged = true;
+          Serial.println();
+        }
+        if (entryChanged) {
+          Serial.println();
+          sprintf_P(buf, PSTR("New music playing colour 1 (r, g, b) = (%u, %u, %u)."), rgbEntry[0], rgbEntry[1], rgbEntry[2]);
+          Serial.println(buf);
+          strcpy_P(buf, confirm);
+          Serial.println(buf);
+          colourMenuState = COLOURMENU_CONFIRM_MUSIC_RGB;
+        }
+        else {
+          colourMenuState = COLOURMENU_COMPLETE;
+        }
+      }
+      break;
+
+    case COLOURMENU_CONFIRM_MUSIC_RGB:
+      if (c == 'y' || c == 'Y') {
+        musicRed = rgbEntry[0];
+        musicGreen = rgbEntry[1];
+        musicBlue = rgbEntry[2];
+        colourMenuState = COLOURMENU_COMPLETE;
+      }
+      else if (c != 0) {
+        colourMenuState = COLOURMENU_CONFIRM_MUSIC_RGB;
+      }
+      break;
+
 
     case COLOURMENU_COMPLETE:
       updateEEPROM();

@@ -1,9 +1,9 @@
- #include <Wire.h>
+#include <Wire.h>
 #include "SoftwareSerial.h"
 #include "DFRobotDFPlayerMini.h"
 #include <FastLED.h>
 
-#define TEST_PROX_SENSOR
+//#define TEST_PROX_SENSOR
 
 const uint8_t LED_PIN = 5;
 const uint8_t PROXIMITY_SENSOR_PIN = A1;
@@ -28,9 +28,20 @@ bool proximityDetected = false;
 
 uint8_t musicVolume;                                        // The volume of the music: 0-30.
 
-uint16_t idleFadeSpeed, activeFadeSpeed, transitionSpeed;
-uint8_t idleRed[2], idleGreen[2], idleBlue[2];
-uint8_t activeRed[2], activeGreen[2], activeBlue[2];
+uint16_t activeFadeSpeed, transitionSpeed;
+
+// Colour when the pole is idle - not fading. Same for all poles.
+uint8_t idleRed = 255;
+uint8_t idleGreen = 255;
+uint8_t idleBlue = 255;
+
+// Colour when proximity is detected - fading between the two. Same for all poles.
+uint8_t activeRed[2] = {255, 0};
+uint8_t activeGreen[2] = {173, 173};
+uint8_t activeBlue[2] = {229, 229};
+
+// Colours when music plays - not fading. Set through the menu pole by pole.
+uint8_t musicRed, musicGreen, musicBlue;
 
 char buf[80];
 
