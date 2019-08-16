@@ -20,6 +20,13 @@ void handleHandSensor() {
     getReading();                                           // Read the sensor's result. This resets the interrupt state.
     analyseMotion(motionState);
   }
+//  static uint32_t lastPrint;
+//  if (millis() - lastPrint > 500) {
+//    lastPrint  = millis();
+//    Serial.print(F("Distance: "));
+//    Serial.print(readings[0]);
+//    Serial.println(F(" mm."));
+//  }
 }
 
 void analyseMotion(uint8_t &state) {
@@ -51,4 +58,4 @@ void getReading() {
     readings[i] = readings [i - 1];                         // Move all values one up.
   }
   readings[0] = reading;
-}
+}  
