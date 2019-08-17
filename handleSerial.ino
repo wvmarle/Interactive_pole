@@ -206,7 +206,7 @@ void menuSetColours(char c) {                               // Handle input of c
           colourMenuState = COLOURMENU_CONFIRM_TRANSITION_SPEED;
         }
         else {                                                // No new value entered; continue to the next.
-          colourMenuState = COLOURMENU_COMPLETE;
+          colourMenuState = COLOURMENU_SHOW_MUSIC_RGB;
         }
       }
       break;

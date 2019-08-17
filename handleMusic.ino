@@ -14,8 +14,8 @@ void initMusic() {
   delay (3000);                                             // power-up safety delay
   myDFPlayer.setTimeOut(500);                               // Set serial communication time out 500ms
   myDFPlayer.volume(musicVolume);                           // Set volume value (0~30).
-  myDFPlayer.loop(1);                                       // Loop the first mp3.
-  myDFPlayer.pause();                                       // But don't start playing just yet!
+//  myDFPlayer.loop(1);                                       // Loop the first mp3.
+//  myDFPlayer.pause();                                       // But don't start playing just yet!
 }
 
 void handleMusic() {
@@ -24,12 +24,13 @@ void handleMusic() {
     if (musicPlaying) {
       myDFPlayer.pause();
       musicPlaying = false;
-      Serial.println("Hand presented: pausing.");
+      Serial.println("Hand presented: stop playing.");
     }
     else {
-      myDFPlayer.start();
+//      myDFPlayer.start();
+      myDFPlayer.loop(1);
       musicPlaying = true;
-      Serial.println("Hand presented: playing.");
+      Serial.println("Hand presented: start playing.");
     }
   }
   handPresented = bitRead(motionState, HAND_PRESENTED); // Remember the state.

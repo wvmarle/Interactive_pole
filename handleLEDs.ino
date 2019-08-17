@@ -46,10 +46,7 @@ void handleLEDs() {
     oldGreen = green;
     oldBlue = blue;
     if (proximityDetected) {                                // Become active.
-      LEDState = LED_TRANSITION_TO_ACTIVE;
-      fadeRed = activeRed[0];
-      fadeGreen = activeGreen[0];
-      fadeBlue = activeBlue[0];
+      LEDState = LED_ACTIVE_FADE_UP;
     }
     else if (musicPlaying == false) {
       LEDState = LED_TRANSITION_TO_IDLE;
@@ -72,19 +69,20 @@ void handleLEDs() {
       fadeRed = musicRed;
       fadeGreen = musicGreen;
       fadeBlue = musicBlue;
+      fadeSpeed = transitionSpeed;                          // How long the transition should take.
     }
     else if (proximityDetected) {                           // Music just stopped, still have proximity.
-      LEDState = LED_TRANSITION_TO_ACTIVE;                  // Transition fade to active colour.
-      fadeRed = activeRed[0];
-      fadeGreen = activeGreen[0];
-      fadeBlue = activeBlue[0];
+      LEDState = LED_ACTIVE_FADE_DOWN;                      // Transition fade to active colour.
+      fadeSpeed = activeFadeSpeed;                          // How long the transition should take.
     }
     else {
-      LEDState = LED_TRANSITION_TO_IDLE;                  // Transition fade to idle colour.
+      LEDState = LED_TRANSITION_TO_IDLE;                    // Transition fade to idle colour.
       fadeRed = idleRed;
       fadeGreen = idleGreen;
       fadeBlue = idleBlue;
+      fadeSpeed = transitionSpeed;                          // How long the transition should take.
     }
+    fadeStep = 0;
   }
   nSteps = min(fadeSpeed / 50, 255);                        // Don't fade too fast, but also no more than 256 total steps. It takes about 32 ms to transmit data to 100 LEDs!
 
@@ -102,42 +100,30 @@ void handleLEDs() {
                 oldBlue, fadeBlue,
                 fadeStep, nSteps);
         if (fadeStep == nSteps) {                           // We reached the end of the sequence.
-          switch (LEDState) {                               // Set LEDs and the LEDState based on what we faded to.
-            case LED_TRANSITION_TO_IDLE:
-              LEDState = LED_IDLE;
-              setLEDs(idleRed, 0,
-                      idleGreen, 0,
-                      idleBlue, 0,
-                      0, 0);
-              break;
-
-            case LED_TRANSITION_TO_ACTIVE:
-              LEDState = LED_ACTIVE_FADE_UP;
-              break;
-
-            case LED_TRANSITION_TO_MUSIC:
-              setLEDs(musicRed, 0,
-                      musicGreen, 0,
-                      musicBlue, 0,
-                      0, 0);
-              break;
-          }
-          if (LEDState == LED_TRANSITION_TO_IDLE) {         // We just transitioned to IDLE state.
+          if (LEDState == LED_TRANSITION_TO_IDLE) {
             LEDState = LED_IDLE;
+            setLEDs(idleRed, 0,
+                    idleGreen, 0,
+                    idleBlue, 0,
+                    0, 0);
           }
-          else {                                            // We just transitioned to ACTIVE state.
+          else if (LEDState == LED_TRANSITION_TO_ACTIVE) {
             LEDState = LED_ACTIVE_FADE_UP;
-            fadeSpeed = activeFadeSpeed / 2;                // The pace at which we do the fading up/down.
           }
-          fadeStep = 0;
-          lastFadeTime = millis();
+          else if (LEDState == LED_TRANSITION_TO_MUSIC) {
+            LEDState = LED_MUSIC;
+            setLEDs(musicRed, 0,
+                    musicGreen, 0,
+                    musicBlue, 0,
+                    0, 0);
+          }
         }
         break;
 
       case LED_ACTIVE_FADE_UP:
-        setLEDs(activeRed[0], activeRed[1],
-                activeGreen[0], activeGreen[1],
-                activeBlue[0], activeBlue[1],
+        setLEDs(idleRed, musicRed,
+                idleGreen, musicGreen,
+                idleBlue, musicBlue,
                 fadeStep, nSteps);
         if (fadeStep == nSteps) {
           LEDState = LED_ACTIVE_FADE_DOWN;                // Start fading down (colour 1 to 0).
@@ -147,15 +133,15 @@ void handleLEDs() {
         break;
 
       case LED_ACTIVE_FADE_DOWN:
-        setLEDs(activeRed[1], activeRed[0],
-                activeGreen[1], activeGreen[0],
-                activeBlue[1], activeBlue[0],
+        setLEDs(musicRed, idleRed,
+                musicGreen, idleGreen,
+                musicBlue, idleBlue,
                 fadeStep, nSteps);
         if (fadeStep == nSteps) {
           LEDState = LED_ACTIVE_FADE_UP;                    // Start fading up (colour 0 to 1).
+          fadeStep = 0;
+          lastFadeTime = millis();
         }
-        fadeStep = 0;
-        lastFadeTime = millis();
         break;
     }
   }
