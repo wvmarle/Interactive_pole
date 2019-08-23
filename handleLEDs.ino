@@ -39,7 +39,8 @@ void handleLEDs() {
   static bool oldMusicPlaying;
 
   // Handle proximity sensor state.
-  if (proximityDetected != oldProximityDetected) {          // Change of state; act upon this.
+  if (proximityDetected != oldProximityDetected &&          // Change of state; act upon this,
+      musicPlaying == false) {                              // but only when we're not currently playing music!
     oldProximityDetected = proximityDetected;
     lastFadeTime = millis();                                // Starting a fade event.
     oldRed = red;                                           // Keep track of where we started.
@@ -47,9 +48,11 @@ void handleLEDs() {
     oldBlue = blue;
     if (proximityDetected) {                                // Become active.
       LEDState = LED_ACTIVE_FADE_UP;
+      fadeSpeed = activeFadeSpeed;
     }
     else if (musicPlaying == false) {
       LEDState = LED_TRANSITION_TO_IDLE;
+      fadeSpeed = transitionSpeed;
       fadeRed = idleRed;
       fadeGreen = idleGreen;
       fadeBlue = idleBlue;
@@ -85,8 +88,14 @@ void handleLEDs() {
     fadeStep = 0;
   }
   nSteps = min(fadeSpeed / 50, 255);                        // Don't fade too fast, but also no more than 256 total steps. It takes about 32 ms to transmit data to 100 LEDs!
-
-  if (millis() - lastFadeTime > (float)fadeStep * (float)fadeSpeed / (float)nSteps) {
+  uint16_t fadeStepTime;
+  if (nSteps == 255) {
+    fadeStepTime = fadeSpeed / nSteps;
+  }
+  else {
+    fadeStepTime = 50;
+  }
+  if (millis() - lastFadeTime > (float)fadeStep * (float)fadeStepTime) {
     fadeStep++;
     switch (LEDState) {
       case LED_IDLE:
@@ -109,6 +118,7 @@ void handleLEDs() {
           }
           else if (LEDState == LED_TRANSITION_TO_ACTIVE) {
             LEDState = LED_ACTIVE_FADE_UP;
+            fadeSpeed = activeFadeSpeed;                    // How long the transition should take.
           }
           else if (LEDState == LED_TRANSITION_TO_MUSIC) {
             LEDState = LED_MUSIC;
@@ -127,6 +137,7 @@ void handleLEDs() {
                 fadeStep, nSteps);
         if (fadeStep == nSteps) {
           LEDState = LED_ACTIVE_FADE_DOWN;                // Start fading down (colour 1 to 0).
+          fadeSpeed = activeFadeSpeed;
           fadeStep = 0;
           lastFadeTime = millis();
         }

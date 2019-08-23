@@ -8,6 +8,7 @@ const uint16_t READING_FREQUENCY = 100;                     // Time in milliseco
 const uint16_t READINGS = 64;                               // Number of readings over which to average.
 
 void initBrightnessSensor() {
+  FastLED.setBrightness(200);
 }
 
 void handleBrightnessSensor() {

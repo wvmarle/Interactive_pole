@@ -55,7 +55,7 @@ void loop() {
   handleHandSensor();
   handleMusic();
   handleProximitySensor();
-  handleBrightnessSensor();
+//  handleBrightnessSensor();
   handleLEDs(); 
   handleSerialUI();
 }

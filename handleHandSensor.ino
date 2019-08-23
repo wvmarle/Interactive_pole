@@ -2,9 +2,13 @@
 VL53L0X handSensor;                                         // The constructor.
 
 void initHandSensor() {
+  Serial.println(F("Starting up hand sensor."));
   handSensor.init();                                        // Initialise the sensor.
+  Serial.println(F("Init done."));
   handSensor.setTimeout(0);                                 // Sets a timeout period in milliseconds after which read operations will abort if the sensor is not ready. A value of 0 disables the timeout.
+  Serial.println(F("Timeout set."));
   handSensor.startContinuous();                             // Take measurements continuously, as fast as possible.
+  Serial.println(F("Readings started."));
   pinMode(2, INPUT_PULLUP);                                 // Make sure we don't leave it floating.
   attachInterrupt(digitalPinToInterrupt(2), sensorInterrupt, FALLING); // When measurement is done, an interrupt is fired (active low).
 }

@@ -40,4 +40,5 @@ void handleMusic() {
 //    musicPlaying = false;
 //    Serial.println("No proximity - pausing the music.");
 //  }
+
 }

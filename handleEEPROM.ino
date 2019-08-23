@@ -12,9 +12,9 @@ void readEEPROM() {
     transitionSpeed = 2000;
 
     // Colour when music plays.
-    musicRed = 221;
-    musicGreen = 127;
-    musicBlue = 255;
+    musicRed = 80;
+    musicGreen = 76;
+    musicBlue = 211;
     
     musicVolume = 20;
     updateEEPROM();
